@@ -28,9 +28,15 @@ const postSchema = new mongoose.Schema({
     ref:'User',
      },
 ],
-    disLike:[{
+    disLikes:[{
     type: mongoose.Schema.Types.ObjectId,
     ref:'User',
+    },
+],
+
+    comments:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref:'Comment',
     },
 ],
 // user{author of the blog}
@@ -39,7 +45,7 @@ const postSchema = new mongoose.Schema({
     ref:'User',
     required:[true,'Author is required']
 },
-    image:{
+    photo:{
         type: String,
         required:[true,'Image is required']
     },

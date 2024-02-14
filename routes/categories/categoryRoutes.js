@@ -1,53 +1,18 @@
 const express= require('express')
+const{createCategoryCtrl,fetchCategoriesCtrl,categoryDetailsCtrl,updateCategoryCtrl,deleteCategoryCtrl}= require('../../controllers/categories/categoritesController')
+const isLogin = require('../../middlewares/isLogin')
+
 
 const categoryRouter=express.Router()
 
-categoryRouter.post('/',async(req,res)=>{
-    try {
-        res.json({
-            status:"success",
-            message:"category created",
-        })
-        
-    } catch (error) {
-        res.json(error.message)
-    }
-})
+categoryRouter.post('/',isLogin,createCategoryCtrl)
 
-categoryRouter.get('/:id',async(req,res)=>{
-    try {
-        res.json({
-            status:"success",
-            message:"Category sucessfully fetched",
-        })
-        
-    } catch (error) {
-        res.json(error.message)
-    }
-})
+categoryRouter.get('/:id',categoryDetailsCtrl)
 
-categoryRouter.delete('/:id',async(req,res)=>{
-    try {
-        res.json({
-            status:"success",
-            message:"Category deleted sucessfully",
-        })
-        
-    } catch (error) {
-        res.json(error.message)
-    }
-})
+categoryRouter.get('/',fetchCategoriesCtrl)
 
-categoryRouter.put('/:id',async(req,res)=>{
-    try {
-        res.json({
-            status:"success",
-            message:"Category updated sucessfylly",
-        })
-        
-    } catch (error) {
-        res.json(error.message)
-    }
-})
+categoryRouter.delete('/:id',isLogin,deleteCategoryCtrl)
+
+categoryRouter.put('/:id',isLogin,updateCategoryCtrl)
 
 module.exports= categoryRouter

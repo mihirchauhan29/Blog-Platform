@@ -3,7 +3,9 @@ const User= require("../../model/User/User")
 const generateToken= require('../../utils/generateToken')
 const getTokenFromHeader= require('../../utils/getTokenFromHeader')
 const errMsg = require('../../utils/errMsg')
-
+const Post= require('../../model/Post/Post')
+const Comment= require('../../model/Comment/Comment')
+const Category= require('../../model/Category/Category')
 
 //register user
 const userRegisterCtrl=async(req,res,next)=>{
@@ -220,9 +222,10 @@ const unblockUserCtrl=async(req,res,next)=>{
 //all userslist
 const usersCtrl=async(req,res)=>{
     try {
+        const users= await User.find()
         res.json({
             status:"success",
-            message:"User list",
+            data:users,
         })
         
     } catch (error) {
@@ -251,10 +254,20 @@ const userProfileCtrl=async(req,res)=>{
 //delete user
 const userDeleteCtrl=async(req,res)=>{
     try {
-        res.json({
-            status:"success",
-            message:"User deleted sucessfully",
-        })
+       // find the user to be deleted
+       const userToDelete= await User.findById(req.userAuth)
+       //find all posts to delete
+       await Post.deleteMany({user:req.userAuth})
+       //find all comments to delete
+       await Comment.deleteMany({user:req.userAuth})
+       //find all categories to delete
+       await Category.deleteMany({user:req.userAuth})
+
+       await userToDelete.deleteOne()
+       res.json({
+        status:"success",
+        data:"Your account has been deleted successfully",
+    })
         
     } catch (error) {
         res.json(error.message)
@@ -262,11 +275,31 @@ const userDeleteCtrl=async(req,res)=>{
 }
 
 //user Update
-const userUpdateCtrl=async(req,res)=>{
+const userUpdateCtrl=async(req,res,next)=>{
+    const {email,firstname,lastname}=req.body
     try {
+        //check if email is already present 
+        if(email){
+            const emailTaken= await User.findOne({email})
+            if(emailTaken){
+                return next(errMsg("Email already exist",400))
+            }
+        }
+        //update the user
+        const user= await User.findByIdAndUpdate(req.userAuth,{
+            firstname,
+            lastname,
+            
+        },{
+            new : true,
+            runValidators: true,
+        })
+
+
+
         res.json({
             status:"success",
-            message:"User updated sucessfully",
+            data:user,
         })
         
     } catch (error) {
@@ -274,8 +307,30 @@ const userUpdateCtrl=async(req,res)=>{
     }
 }
 
-//profile photo upload
+//update password
+const updatePasswordCtrl=async(req,res,next)=>{
+    const {password}=req.body
+    try {
+        //check if user is  updating password
+       if(password){
+        const hashedPassword= await bcrypt.hash(password,10)
 
+        //update the user
+        const user= await User.findByIdAndUpdate(req.userAuth,{password},{
+            new: true,
+            runValidators: true,
+        })
+        res.json({
+            status:"success",
+            data:"Password has been updated",
+        })
+       }
+   } catch (error) {
+        res.json(error.message)
+    }
+}
+
+//profile photo upload
 const profilePhotoUploadCtrl=async(req,res,next)=>{
     
     try {
@@ -327,4 +382,5 @@ module.exports={
     unfollowCtrl,
     blockUserCtrl,
     unblockUserCtrl,
+    updatePasswordCtrl,
 }

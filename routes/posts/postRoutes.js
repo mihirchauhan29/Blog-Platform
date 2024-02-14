@@ -1,64 +1,23 @@
 const express= require('express')
+const multer= require('multer')
+const storage=require('../../config/cloudinary')
+const { createpostCtrl,fetchPostsCtrl,toggleLikesPostCtrl,toggleDisLikesPostCtrl,deletePostCtrl,updatePostCtrl } = require('../../controllers/posts/postController')
+const isLogin = require('../../middlewares/isLogin')
 const postRouter=express.Router()
 
-postRouter.post('/',async(req,res)=>{
-    try {
-        res.json({
-            status:"success",
-            message:"Post created",
-        })
-        
-    } catch (error) {
-        res.json(error.message)
-    }
-})
+//file upload middleware
+const upload=multer({storage})
 
-postRouter.get('/:id', async(req,res)=>{
-    try {
-        res.json({
-            status:"success",
-            message:"Post sucessfully fetched",
-        })
-        
-    } catch (error) {
-        res.json(error.message)
-    }
-})
+postRouter.post('/',isLogin,upload.single("image"),createpostCtrl)
 
-postRouter.get('/', async(req,res)=>{
-    try {
-        res.json({
-            status:"success",
-            message:"Post list",
-        })
-        
-    } catch (error) {
-        res.json(error.message)
-    }
-})
+postRouter.get('/',isLogin, fetchPostsCtrl)
 
-postRouter.delete('/:id',async(req,res)=>{
-    try {
-        res.json({
-            status:"success",
-            message:"Post deleted sucessfully",
-        })
-        
-    } catch (error) {
-        res.json(error.message)
-    }
-})
+postRouter.get('/likes/:id',isLogin,toggleLikesPostCtrl )
 
-postRouter.put('/:id',async(req,res)=>{
-    try {
-        res.json({
-            status:"success",
-            message:"Post updated sucessfylly",
-        })
-        
-    } catch (error) {
-        res.json(error.message)
-    }
-})
+postRouter.get('/dislikes/:id',isLogin,toggleDisLikesPostCtrl )
+
+postRouter.delete('/:id',isLogin,deletePostCtrl)
+
+postRouter.put('/:id',isLogin,upload.single("image"),updatePostCtrl)
 
 module.exports=postRouter
