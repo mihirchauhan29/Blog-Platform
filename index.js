@@ -17,7 +17,19 @@ const isAdmin = require('./middlewares/isAdmin')
 //middlewares
 app.use(express.json()) //to pass incoming payload (from req.body)
 
-
+//Home Route
+app.get('/',async(req,res)=>{
+    try{
+        const posts= await Post.find()
+        res.json({
+            status:"Success",
+            data:posts,
+        })
+    }
+    catch (error){
+        res.json(error)
+    }
+})
 
 //users route
 app.use('/app/v1/users/',userRouter)
